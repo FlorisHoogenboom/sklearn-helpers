@@ -1,2 +1,2 @@
 #sklearn-helpers
-This repository contains some helpers I use when working with scikit-learn.Currently, it only contains some workarounds for handeling categorical data until [https://github.com/jlord/sheetsee.js/issues/26] is finalized.
+This repository contains some helpers I use when working with scikit-learn.Currently, it only contains some workarounds for handeling categorical data until https://github.com/scikit-learn/scikit-learn/pull/9151 is finalized.
