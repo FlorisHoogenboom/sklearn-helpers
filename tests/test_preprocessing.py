@@ -1,7 +1,8 @@
 import unittest
 import numpy as np
 
-from sklearn_helpers.preprocessing import *
+from sklearn_helpers.preprocessing import \
+    EnhancedLabelEncoder, MultiColumnLabelEncoder
 
 
 class EnhancedLabelEncoderTest(unittest.TestCase):
