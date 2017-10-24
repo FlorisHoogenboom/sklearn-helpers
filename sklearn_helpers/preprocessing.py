@@ -68,7 +68,7 @@ class MultiColumnLabelEncoder(BaseEstimator, TransformerMixin):
         ----------
         self
         """
-        X = check_array(X, copy=True)
+        X = check_array(X, copy=True, dtype='object')
 
         if self.columns is None:
             self.columns = list(range(X.shape[1]))
