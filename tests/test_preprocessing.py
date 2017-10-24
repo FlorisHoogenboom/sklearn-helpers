@@ -47,5 +47,26 @@ class EnhancedLabelEncoderTest(unittest.TestCase):
 
 
 class MultiColumnLabelEncoderTest(unittest.TestCase):
-    # TODO: implement these
-    pass
+    def test_handle_ignore(self):
+        """If handle_unknown is 'ignore' it should map unseen labels to a new value"""
+
+        mce = MultiColumnLabelEncoder(handle_unknown='ignore')
+        train = np.array([
+            ['a', 'b'],
+            ['c', 'a']
+        ])
+        test = np.array([
+            ['a', 'd'],
+            ['c', 'd']
+        ])
+
+        mce.fit(train)
+
+        test_transformed = np.array([
+            [0.,2.],
+            [1.,2.]
+        ])
+
+        self.assertTrue(
+            (mce.transform(test) == test_transformed).all()
+        )

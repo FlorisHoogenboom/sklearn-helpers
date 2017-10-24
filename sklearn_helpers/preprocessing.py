@@ -2,7 +2,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.validation import check_is_fitted
-from sklearn.utils.validation import column_or_1d, check_array
+from sklearn.utils.validation import column_or_1d, check_array, as_float_array
 import numpy as np
 
 
@@ -55,6 +55,7 @@ class MultiColumnLabelEncoder(BaseEstimator, TransformerMixin):
             The columns to which Label encoding should be applied
         """
         self.columns = categorical_features
+        self.handle_unknown = handle_unknown
 
     def fit(self, X, y=None):
         """
@@ -75,7 +76,8 @@ class MultiColumnLabelEncoder(BaseEstimator, TransformerMixin):
 
         self.encoders = {}
         for col in self.columns:
-            self.encoders[col] = EnhancedLabelEncoder()
+            self.encoders[col] = EnhancedLabelEncoder(
+                handle_unknown=self.handle_unknown)
             self.encoders[col].fit(X[:,col])
 
         self._fitted = True
@@ -100,6 +102,6 @@ class MultiColumnLabelEncoder(BaseEstimator, TransformerMixin):
             output[:,col] = self.encoders[col].transform(output[:,col])
 
         if y:
-            return output, y
+            return as_float_array(output), y
         else:
-            return output
+            return as_float_array(output)
