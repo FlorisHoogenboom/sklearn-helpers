@@ -1,6 +1,7 @@
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils import check_array
 import pandas as pd
+import numpy as np
 
 
 class Transformer(BaseEstimator, TransformerMixin):
@@ -57,6 +58,13 @@ class PandasTransformer(Transformer):
     and makes it adhere to she Scikit-Learn api.
     """
 
+    @staticmethod
+    def check_is_pandas_dataframe(data):
+        if not isinstance(data, pd.DataFrame):
+            raise ValueError('Data should be a pandas dataframe')
+
+        return data
+
     def transform(self, data):
         """Transform using the transformer function
 
@@ -64,8 +72,7 @@ class PandasTransformer(Transformer):
         ----------
         data : the dataset to transform
         """
-        if not isinstance(data, pd.DataFrame):
-            raise ValueError('Data should be a pandas dataframe')
+        self.check_is_pandas_dataframe(data)
 
         return super(PandasTransformer, self).transform(data)
 
@@ -120,7 +127,7 @@ class ColumnSelector(Transformer):
         self.columns_ = columns
 
 
-class PandasColumnSelector(ColumnSelector):
+class PandasColumnSelector(ColumnSelector, PandasTransformer):
     def transform_func(self, data):
         """Selects columns in self.columns of the given Pandas DataFrame.
 
@@ -131,6 +138,30 @@ class PandasColumnSelector(ColumnSelector):
         if self.columns is None:
             return data
 
+        self.check_is_pandas_dataframe(data)
+
         return super(PandasColumnSelector, self).transform_func(
             data.iloc
         )
+
+
+class PandasCatColumnsSelector(PandasColumnSelector):
+    def __init__(self):
+        super(PandasCatColumnsSelector, self).__init__()
+
+    def transform_func(self, data):
+        cat_cols = data.select_dtypes(exclude=[np.number]).columns
+        self.columns = [data.columns.get_loc(col) for col in cat_cols]
+
+        return super(PandasCatColumnsSelector, self).transform_func(data)
+
+
+class PandasNonCatColumnSelector(PandasColumnSelector):
+    def __init__(self):
+        super(PandasNonCatColumnSelector, self).__init__()
+
+    def transform_func(self, data):
+        cat_cols = data.select_dtypes(include=[np.number]).columns
+        self.columns = [data.columns.get_loc(col) for col in cat_cols]
+
+        return super(PandasNonCatColumnSelector, self).transform_func(data)

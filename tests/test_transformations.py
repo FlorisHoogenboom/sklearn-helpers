@@ -6,7 +6,9 @@ from sklearn_helpers.transformations import \
     Transformer, \
     PandasTransformer, \
     ColumnSelector, \
-    PandasColumnSelector
+    PandasColumnSelector, \
+    PandasCatColumnsSelector, \
+    PandasNonCatColumnSelector
 
 
 class TransformerTest(unittest.TestCase):
@@ -93,3 +95,47 @@ class PandasColumnSelectorTest(unittest.TestCase):
         )
 
 
+class PandasCatColumnsSelectorTest(unittest.TestCase):
+    def test_select_right_columns(self):
+        """It should select only categorical columns"""
+        df = pd.DataFrame(
+            np.array([
+                [1,'b','a'],
+                [3,'c','b']
+            ]),
+            columns=['a', 'b', 'c']
+        )
+
+        df['a'] = df['a'].astype('int64')
+
+        ccs = PandasCatColumnsSelector()
+        selected = ccs.transform(df)
+
+        self.assertTrue(selected.shape[1] == 2)
+
+        self.assertTrue(
+            all(selected == df.iloc[:,[1,2]])
+        )
+
+
+class PandasNonCatColumnsSelectorTest(unittest.TestCase):
+    def test_select_right_columns(self):
+        """It should select only categorical columns"""
+        df = pd.DataFrame(
+            np.array([
+                [1,'b','a'],
+                [3,'c','b']
+            ]),
+            columns=['a', 'b', 'c']
+        )
+
+        df['a'] = df['a'].astype('int64')
+
+        nccs = PandasNonCatColumnSelector()
+        selected = nccs.transform(df)
+
+        self.assertTrue(selected.shape[1] == 1)
+
+        self.assertTrue(
+            all(selected == df.iloc[:,[0]])
+        )
