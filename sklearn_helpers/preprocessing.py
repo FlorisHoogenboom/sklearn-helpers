@@ -69,7 +69,7 @@ class MultiColumnLabelEncoder(BaseEstimator, TransformerMixin):
         ----------
         self
         """
-        X = check_array(X, copy=True, dtype='object')
+        X = check_array(X, copy=True, dtype=None)
 
         if self.columns is None:
             self.columns = list(range(X.shape[1]))
@@ -101,7 +101,5 @@ class MultiColumnLabelEncoder(BaseEstimator, TransformerMixin):
         for col in self.columns:
             output[:,col] = self.encoders[col].transform(output[:,col])
 
-        if y:
-            return as_float_array(output), y
-        else:
-            return as_float_array(output)
+        # TODO: don't like this. Should return same type as passed.
+        return as_float_array(output)

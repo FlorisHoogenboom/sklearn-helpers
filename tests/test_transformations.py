@@ -2,7 +2,11 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from sklearn_helpers.transformations import Transformer, PandasTransformer
+from sklearn_helpers.transformations import \
+    Transformer, \
+    PandasTransformer, \
+    ColumnSelector, \
+    PandasColumnSelector
 
 
 class TransformerTest(unittest.TestCase):
@@ -42,4 +46,50 @@ class PandasTransformerTest(unittest.TestCase):
         data = np.ones((10, 2))
 
         self.assertRaises(ValueError, lambda: trans.transform(data))
+
+
+class ColumnSelectorTest(unittest.TestCase):
+    def test_selects_correct_columns(self):
+        """The column selector should only return the selected columns"""
+        data = np.array([
+            [1,2],
+            [3,4]
+        ])
+
+        cs = ColumnSelector(columns=[1])
+
+        result = cs.transform(data)
+
+        self.assertTrue(
+            (data[:,1] == result[:,0]).all()
+        )
+
+    def test_selects_all(self):
+        # TODO: this and more tests...
+        pass
+
+
+class PandasColumnSelectorTest(unittest.TestCase):
+    def test_selects_right_columns(self):
+        """It should select the right columns"""
+        df = pd.DataFrame(
+            np.array([
+                [1,2,4],
+                [3,4,5]
+            ]),
+            columns=['a', 'b', 'c']
+        )
+
+        pcs = PandasColumnSelector(columns=[1,2])
+
+        selected = pcs.transform(df)
+
+        self.assertTrue(
+            (df.iloc[:,1] == selected.iloc[:,0]).all()
+        )
+
+        self.assertTrue(
+            (df.iloc[:,2] == selected.iloc[:,1]).all()
+        )
+
 
