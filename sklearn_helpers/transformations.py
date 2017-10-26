@@ -145,15 +145,15 @@ class PandasColumnSelector(ColumnSelector, PandasTransformer):
         )
 
 
-class PandasCatColumnsSelector(PandasColumnSelector):
+class PandasCatColumnSelector(PandasColumnSelector):
     def __init__(self):
-        super(PandasCatColumnsSelector, self).__init__()
+        super(PandasCatColumnSelector, self).__init__()
 
     def transform_func(self, data):
         cat_cols = data.select_dtypes(exclude=[np.number]).columns
         self.columns = [data.columns.get_loc(col) for col in cat_cols]
 
-        return super(PandasCatColumnsSelector, self).transform_func(data)
+        return super(PandasCatColumnSelector, self).transform_func(data)
 
 
 class PandasNonCatColumnSelector(PandasColumnSelector):

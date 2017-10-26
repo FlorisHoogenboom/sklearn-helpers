@@ -7,7 +7,7 @@ from sklearn_helpers.transformations import \
     PandasTransformer, \
     ColumnSelector, \
     PandasColumnSelector, \
-    PandasCatColumnsSelector, \
+    PandasCatColumnSelector, \
     PandasNonCatColumnSelector
 
 
@@ -108,7 +108,7 @@ class PandasCatColumnsSelectorTest(unittest.TestCase):
 
         df['a'] = df['a'].astype('int64')
 
-        ccs = PandasCatColumnsSelector()
+        ccs = PandasCatColumnSelector()
         selected = ccs.transform(df)
 
         self.assertTrue(selected.shape[1] == 2)
