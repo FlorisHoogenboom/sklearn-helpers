@@ -116,6 +116,7 @@ class ColumnSelector(Transformer):
     @columns.setter
     def columns(self, columns):
         if columns is None:
+            self.columns_ = None
             return
 
         if (
