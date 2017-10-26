@@ -97,7 +97,7 @@ class MultiColumnLabelEncoder(BaseEstimator, TransformerMixin):
         A copy of X with the specified columns transformed
         """
         check_is_fitted(self, '_fitted')
-        output = X.copy()
+        output = X = check_array(X, copy=True, dtype=None)
         for col in self.columns:
             output[:,col] = self.encoders[col].transform(output[:,col])
 

@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-
+import pandas as pd
 from sklearn_helpers.preprocessing import \
     EnhancedLabelEncoder, MultiColumnLabelEncoder
 
@@ -70,3 +70,17 @@ class MultiColumnLabelEncoderTest(unittest.TestCase):
         self.assertTrue(
             (mce.transform(test) == test_transformed).all()
         )
+
+    def test_accepts_pandas(self):
+        """It shouold accept a Pandas dataframe"""
+        mce = MultiColumnLabelEncoder(handle_unknown='ignore')
+        train = pd.DataFrame(
+            np.array([
+                ['a', 'b'],
+                ['c', 'a']
+            ]),
+            columns=['col1', 'col2']
+        )
+
+        # This should not throw
+        mce.fit_transform(train, np.array([1,2]))
