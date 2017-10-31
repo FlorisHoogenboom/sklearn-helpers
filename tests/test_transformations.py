@@ -67,13 +67,24 @@ class ColumnSelectorTest(unittest.TestCase):
         )
 
     def test_selects_all(self):
-        # TODO: this and more tests...
-        pass
+        """It should keep all columns if no columns argument is passed"""
+        data = np.array([
+            [1,2],
+            [3,4]
+        ])
+
+        cs = ColumnSelector()
+
+        result = cs.transform(data)
+
+        self.assertTrue(
+            (data == result).all()
+        )
 
 
 class PandasColumnSelectorTest(unittest.TestCase):
-    def test_selects_right_columns(self):
-        """It should select the right columns"""
+    def test_selects_right_columns_numeric(self):
+        """It should select the right columns when specified as indices"""
         df = pd.DataFrame(
             np.array([
                 [1,2,4],
@@ -83,6 +94,28 @@ class PandasColumnSelectorTest(unittest.TestCase):
         )
 
         pcs = PandasColumnSelector(columns=[1,2])
+
+        selected = pcs.transform(df)
+
+        self.assertTrue(
+            (df.iloc[:,1] == selected.iloc[:,0]).all()
+        )
+
+        self.assertTrue(
+            (df.iloc[:,2] == selected.iloc[:,1]).all()
+        )
+
+    def test_selects_right_columns_str(self):
+        """It should select the right columns when specified as a string"""
+        df = pd.DataFrame(
+            np.array([
+                [1,2,4],
+                [3,4,5]
+            ]),
+            columns=['a', 'b', 'c']
+        )
+
+        pcs = PandasColumnSelector(columns=['b', 'c'])
 
         selected = pcs.transform(df)
 

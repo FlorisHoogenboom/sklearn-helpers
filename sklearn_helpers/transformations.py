@@ -141,9 +141,39 @@ class PandasColumnSelector(ColumnSelector, PandasTransformer):
 
         self.check_is_pandas_dataframe(data)
 
-        return super(PandasColumnSelector, self).transform_func(
-            data.iloc
-        )
+        if self.named_columns:
+            return data[self.columns]
+        else:
+            return super(PandasColumnSelector, self).transform_func(
+                data.iloc
+            )
+
+    @property
+    def columns(self):
+        return self.columns_
+
+    @columns.setter
+    def columns(self, columns):
+        if columns is None:
+            self.columns_ = None
+            return
+
+        if (
+            type(columns) is list and
+            all(map(lambda x: isinstance(x, int), columns))
+        ):
+            self.columns_ = columns
+            self.named_columns = False
+        elif (
+            type(columns) is list and
+            all(map(lambda x: isinstance(x, str), columns))
+        ):
+            self.columns_ = columns
+            self.named_columns = True
+        else:
+            raise ValueError('Columns should be a list of integers')
+
+
 
 
 class PandasCatColumnSelector(PandasColumnSelector):
