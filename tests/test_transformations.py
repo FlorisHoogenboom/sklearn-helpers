@@ -81,6 +81,50 @@ class ColumnSelectorTest(unittest.TestCase):
             (data == result).all()
         )
 
+    def test_handle_unkown_error(self):
+        """It should raise and error if an unkown column is passed"""
+        data = np.array([
+            [1,2],
+            [3,4]
+        ])
+
+        cs = ColumnSelector(columns=[1,2], handle_unknown='error')
+
+        self.assertRaises(
+            IndexError,
+            lambda: cs.transform(data)
+        )
+
+    def test_handle_unkown_ignore(self):
+        """It should ignore unknown columns"""
+        data = np.array([
+            [1,2],
+            [3,4]
+        ])
+
+        cs = ColumnSelector(columns=[1,3], handle_unknown='ignore')
+
+        result = cs.transform(data)
+
+        self.assertTrue(
+            (data[:,1] == result[:,0]).all()
+        )
+
+    def test_selects_complement(self):
+        """The column selector should only return the selected columns"""
+        data = np.array([
+            [1,2],
+            [3,4]
+        ])
+
+        cs = ColumnSelector(columns=[1], complement=True)
+
+        result = cs.transform(data)
+
+        self.assertTrue(
+            (data[:,0] == result[:,0]).all()
+        )
+
 
 class PandasColumnSelectorTest(unittest.TestCase):
     def test_selects_right_columns_numeric(self):
@@ -125,6 +169,67 @@ class PandasColumnSelectorTest(unittest.TestCase):
 
         self.assertTrue(
             (df.iloc[:,2] == selected.iloc[:,1]).all()
+        )
+
+    def test_handle_unkown_error(self):
+        """It should throw an error if an unknown column is passed"""
+        df = pd.DataFrame(
+            np.array([
+                [1,2,4],
+                [3,4,5]
+            ]),
+            columns=['a', 'b', 'c']
+        )
+
+        pcs = PandasColumnSelector(columns=['b', 'd'], handle_unknown='error')
+
+        self.assertRaises(
+            IndexError,
+            lambda: pcs.transform(df)
+        )
+
+    def test_handle_unkown_ignore(self):
+        """It should ignore unknown columns"""
+        df = pd.DataFrame(
+            np.array([
+                [1,2,4],
+                [3,4,5]
+            ]),
+            columns=['a', 'b', 'c']
+        )
+
+        pcs = PandasColumnSelector(columns=['b', 'd'], handle_unknown='ignore')
+
+        selected = pcs.transform(df)
+
+        self.assertTrue(
+            (df.iloc[:,1] == selected.iloc[:,0]).all()
+        )
+
+        self.assertTrue(
+            selected.shape[1] == 1
+        )
+
+    def test_handle_complement(self):
+        """If complement is set to true it should select the complement columns"""
+        df = pd.DataFrame(
+            np.array([
+                [1,2,4],
+                [3,4,5]
+            ]),
+            columns=['a', 'b', 'c']
+        )
+
+        pcs = PandasColumnSelector(columns=['b', 'c'], complement=True)
+
+        selected = pcs.transform(df)
+
+        self.assertTrue(
+            (df.iloc[:,0] == selected.iloc[:,0]).all()
+        )
+
+        self.assertTrue(
+            selected.shape[1] == 1
         )
 
 

@@ -88,14 +88,34 @@ class ColumnSelector(Transformer):
     Attributes
     ----------
     columns : attribute containning the columns being selected
+    handle_unknown : attribute whether to ignore non-existing columns,
+        str: 'error' (Default) or 'ignore'
     """
 
-    def __init__(self, columns=None):
-        # Validate the columns, raises if an invalid value is set
+    def __init__(self, columns=None, handle_unknown='error', complement=False):
         self.columns = columns
+        self.handle_unknown = handle_unknown
+        self.complement = complement
 
         # Call superclass with the desired transformer function
         super(ColumnSelector, self).__init__(self.transform_func)
+
+    # TODO: docs....
+    def _columns_to_select(self, columns, data):
+        if not self.complement:
+            return columns
+        else:
+            all = list(range(data.shape[0]))
+            return [col for col in all if col not in columns]
+
+    # TODO: docs....
+    def _check_columns(self, data):
+        if self.handle_unknown == 'ignore':
+            return [col for col in self.columns if col < data.shape[1]]
+        elif max(self.columns) >= data.shape[1]:
+            raise IndexError('Could not select the desired columns')
+        else:
+            return self.columns
 
     def transform_func(self, data):
         """Selects columns in self.columns of the given argument data.
@@ -107,7 +127,10 @@ class ColumnSelector(Transformer):
         if self.columns is None:
             return data
 
-        return data[:,self.columns]
+        columns = self._check_columns(data)
+        columns = self._columns_to_select(columns, data)
+
+        return data[:,columns]
 
     @property
     def columns(self):
@@ -129,6 +152,39 @@ class ColumnSelector(Transformer):
 
 
 class PandasColumnSelector(ColumnSelector, PandasTransformer):
+    # TODO: docs....
+    def _columns_to_select(self, columns, data):
+        if not self.complement:
+            return columns
+        elif not self.named_columns:
+            return super(PandasColumnSelector, self)._columns_to_select(
+                columns,
+                data
+            )
+        else:
+            return [col for col in data.columns if not col in columns]
+
+    # TODO: docs....
+    def _check_columns(self, data):
+        if self.handle_unknown == 'ignore' and self.named_columns:
+            return [col for col in self.columns if col in data.columns]
+        elif self.handle_unknown == 'ignore' and not self.named_columns:
+            return [col for col in self.columns if col < data.shape[1]]
+
+        # If we do not handle unkowns
+        if (
+            self.named_columns and
+            not set(self.columns).issubset(set(data.columns))
+        ):
+            raise IndexError('Column names not contained in axis.')
+        elif(
+            not self.named_columns and
+            not max(self.columns) <= data.shape[1]
+        ):
+            raise IndexError('Column indicecs out of bounds')
+        else:
+            return self.columns
+
     def transform_func(self, data):
         """Selects columns in self.columns of the given Pandas DataFrame.
 
@@ -139,14 +195,13 @@ class PandasColumnSelector(ColumnSelector, PandasTransformer):
         if self.columns is None:
             return data
 
-        self.check_is_pandas_dataframe(data)
+        columns = self._check_columns(data)
+        columns = self._columns_to_select(columns, data)
 
         if self.named_columns:
-            return data[self.columns]
+            return data[columns]
         else:
-            return super(PandasColumnSelector, self).transform_func(
-                data.iloc
-            )
+            return data.iloc[:, columns]
 
     @property
     def columns(self):
