@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(
     name='sklearn_helpers',
@@ -10,11 +10,12 @@ setup(
     author_email='floris.hoogenboom@futurefacts.nl',
     description='Some helpers I use when working with scikit-learn',
     install_requires=[
+        'scipy',
         'scikit-learn',
-        'numpy'
-    ],
-    tests_require=[
-        'nose',
+        'numpy',
         'pandas'
+    ],
+    setup_requires=[
+        'nose>=1.0'
     ]
 )
