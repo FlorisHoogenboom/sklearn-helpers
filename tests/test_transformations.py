@@ -49,6 +49,24 @@ class PandasTransformerTest(unittest.TestCase):
 
         self.assertRaises(ValueError, lambda: trans.transform(data))
 
+    def test_accepts_dataframe_with_missing(self):
+        """The PandasTransformer should accept a DataFrame with mising of np.inf values"""
+        df = pd.DataFrame(
+            [
+                [np.inf, np.nan],
+                [1,2]
+            ],
+            columns=['a', 'b']
+        )
+
+        @PandasTransformer
+        def trans(data):
+            return data.dropna()
+
+        self.assertTrue(
+            trans.transform(df).shape[0] == 1
+        )
+
 
 class ColumnSelectorTest(unittest.TestCase):
     def test_selects_correct_columns(self):

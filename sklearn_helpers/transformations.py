@@ -48,7 +48,12 @@ class Transformer(BaseEstimator, TransformerMixin):
         ----------
         data : the dataset to transform
         """
-        check_array(data, dtype=None, copy=False)
+        check_array(
+            data,
+            dtype=None,
+            copy=False,
+            force_all_finite=False
+        )
         data = data.copy()
         return self._transformer(data)
 
