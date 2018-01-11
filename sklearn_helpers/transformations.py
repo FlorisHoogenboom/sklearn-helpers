@@ -117,7 +117,7 @@ class ColumnSelector(Transformer):
     def _check_columns(self, data):
         if self.handle_unknown == 'ignore':
             return [col for col in self.columns if col < data.shape[1]]
-        elif max(self.columns) >= data.shape[1]:
+        elif len(self.columns) > 0 and max(self.columns) >= data.shape[1]:
             raise IndexError('Could not select the desired columns')
         else:
             return self.columns
@@ -184,6 +184,7 @@ class PandasColumnSelector(ColumnSelector, PandasTransformer):
             raise IndexError('Column names not contained in axis.')
         elif(
             not self.named_columns and
+            len(self.columns) > 0 and
             not max(self.columns) <= data.shape[1]
         ):
             raise IndexError('Column indicecs out of bounds')
@@ -231,7 +232,7 @@ class PandasColumnSelector(ColumnSelector, PandasTransformer):
             self.columns_ = columns
             self.named_columns = True
         else:
-            raise ValueError('Columns should be a list of integers')
+            raise ValueError('Columns should be a list of strings or integers')
 
 
 

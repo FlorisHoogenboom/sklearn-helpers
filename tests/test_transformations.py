@@ -143,7 +143,41 @@ class ColumnSelectorTest(unittest.TestCase):
             (data[:,0] == result[:,0]).all()
         )
 
+    def test_returns_empty_when_desired(self):
+        """
+        When an emtpy set of columns is specified it should return no columns
+        """
+        data = np.array([
+            [1,2],
+            [3,4]
+        ])
 
+        cs = ColumnSelector(columns=[])
+
+        result = cs.transform(data)
+
+        self.assertEqual(
+            result.shape[1],
+            0
+        )
+
+    def test_returns_full_when_selecting_empty_complement(self):
+        """
+        It should return the full df when selecting the emtpy complement.
+        """
+        data = np.array([
+            [1,2],
+            [3,4]
+        ])
+
+        cs = ColumnSelector(columns=[], complement=True)
+
+        result = cs.transform(data)
+
+        self.assertEqual(
+            result.shape[1],
+            2
+        )
 class PandasColumnSelectorTest(unittest.TestCase):
     def test_selects_right_columns_numeric(self):
         """It should select the right columns when specified as indices"""
@@ -249,6 +283,26 @@ class PandasColumnSelectorTest(unittest.TestCase):
         self.assertTrue(
             selected.shape[1] == 1
         )
+
+    def test_selects_empty(self):
+        """When an empty list of columns is passed, it should return DF without columns"""
+        df = pd.DataFrame(
+            np.array([
+                [1,2,4],
+                [3,4,5]
+            ]),
+            columns=['a', 'b', 'c']
+        )
+
+        pcs = PandasColumnSelector(columns=[])
+
+        selected = pcs.transform(df)
+
+        self.assertEqual(
+            selected.shape[1],
+            0
+        )
+
 
 
 class PandasCatColumnsSelectorTest(unittest.TestCase):
