@@ -181,7 +181,11 @@ class PandasColumnSelector(ColumnSelector, PandasTransformer):
             self.named_columns and
             not set(self.columns).issubset(set(data.columns))
         ):
-            raise IndexError('Column names not contained in axis.')
+            raise IndexError(
+                'Columns {0} not contained in axis.'.format(
+                    set(self.columns).difference(set(data.columns))
+                )
+            )
         elif(
             not self.named_columns and
             len(self.columns) > 0 and
