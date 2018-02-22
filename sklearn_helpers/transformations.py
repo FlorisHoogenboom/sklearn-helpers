@@ -41,19 +41,21 @@ class Transformer(BaseEstimator, TransformerMixin):
         """
         return self
 
-    def transform(self, data):
+    def transform(self, data, skip_validation=False):
         """Transform using the transformer function
 
         Parameters
         ----------
         data : the dataset to transform
         """
-        check_array(
-            data,
-            dtype=None,
-            copy=False,
-            force_all_finite=False
-        )
+        if not skip_validation:
+            check_array(
+                data,
+                dtype=None,
+                copy=False,
+                force_all_finite=False
+            )
+
         data = data.copy()
         return self._transformer(data)
 
@@ -70,6 +72,8 @@ class PandasTransformer(Transformer):
 
         return data
 
+    # TODO: not consistent with base class signature
+
     def transform(self, data):
         """Transform using the transformer function
 
@@ -79,7 +83,7 @@ class PandasTransformer(Transformer):
         """
         self.check_is_pandas_dataframe(data)
 
-        return super(PandasTransformer, self).transform(data)
+        return super(PandasTransformer, self).transform(data, skip_validation=True)
 
 
 class ColumnSelector(Transformer):
