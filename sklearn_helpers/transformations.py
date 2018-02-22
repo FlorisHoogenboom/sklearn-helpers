@@ -31,6 +31,7 @@ class Transformer(BaseEstimator, TransformerMixin):
             raise ValueError('Function should be callable')
 
         self._transformer = func
+        self.skip_validation = False
 
     def fit(self, data, y):
         """Empty shell only to adhere to the scikit-learn api
@@ -41,14 +42,14 @@ class Transformer(BaseEstimator, TransformerMixin):
         """
         return self
 
-    def transform(self, data, skip_validation=False):
+    def transform(self, data):
         """Transform using the transformer function
 
         Parameters
         ----------
         data : the dataset to transform
         """
-        if not skip_validation:
+        if not self.skip_validation:
             check_array(
                 data,
                 dtype=None,
@@ -64,6 +65,9 @@ class PandasTransformer(Transformer):
     """A helper class that wraps a given transformation function
     and makes it adhere to she Scikit-Learn api.
     """
+    def __init__(self, func):
+        super(PandasTransformer, self).__init__(func)
+        self.skip_validation = True
 
     @staticmethod
     def check_is_pandas_dataframe(data):
@@ -71,8 +75,6 @@ class PandasTransformer(Transformer):
             raise ValueError('Data should be a pandas dataframe')
 
         return data
-
-    # TODO: not consistent with base class signature
 
     def transform(self, data):
         """Transform using the transformer function
@@ -83,7 +85,7 @@ class PandasTransformer(Transformer):
         """
         self.check_is_pandas_dataframe(data)
 
-        return super(PandasTransformer, self).transform(data, skip_validation=True)
+        return super(PandasTransformer, self).transform(data)
 
 
 class ColumnSelector(Transformer):
