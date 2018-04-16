@@ -2,6 +2,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.validation import check_is_fitted
+from sklearn.exceptions import NotFittedError
 from sklearn.utils.validation import column_or_1d, check_array, as_float_array
 import numpy as np
 
@@ -56,6 +57,7 @@ class MultiColumnLabelEncoder(BaseEstimator, TransformerMixin):
         """
         self.columns = categorical_features
         self.handle_unknown = handle_unknown
+        self._fitted = False
 
     def fit(self, X, y=None):
         """
@@ -69,10 +71,12 @@ class MultiColumnLabelEncoder(BaseEstimator, TransformerMixin):
         ----------
         self
         """
-        X = check_array(X, copy=True, dtype=None)
-
         if self.columns is None:
             self.columns = list(range(X.shape[1]))
+
+        X = check_array(X, copy=True, dtype=None)
+
+
 
         self.encoders = {}
         for col in self.columns:
@@ -83,6 +87,17 @@ class MultiColumnLabelEncoder(BaseEstimator, TransformerMixin):
         self._fitted = True
 
         return self
+
+    @property
+    def classes_(self):
+        if not self._fitted:
+            raise NotFittedError('Cannot obtain classes for an instance that is not-fitted.')
+
+        classes_per_col = dict(
+            ((col, encoder.classes_) for col, encoder in self.encoders.items())
+        )
+
+        return classes_per_col
 
     def transform(self, X, y=None):
         """

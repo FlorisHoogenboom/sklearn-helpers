@@ -84,3 +84,31 @@ class MultiColumnLabelEncoderTest(unittest.TestCase):
 
         # This should not throw
         mce.fit_transform(train, np.array([1,2]))
+
+    def test_classes(self):
+        """It should return classes for each column"""
+
+        def test_accepts_pandas(self):
+            """It shouold accept a Pandas dataframe"""
+        mce = MultiColumnLabelEncoder(
+            handle_unknown='ignore'
+        )
+        train = pd.DataFrame(
+            np.array([
+                ['a', 'b'],
+                ['c', 'a']
+            ]),
+            columns=['col1', 'col2']
+        )
+
+        mce.fit(train, np.array([1,2]))
+
+        self.assertEqual(
+            mce.classes_[0][0],
+            'a'
+        )
+
+        self.assertEqual(
+            mce.classes_[1][1],
+            'b'
+        )
