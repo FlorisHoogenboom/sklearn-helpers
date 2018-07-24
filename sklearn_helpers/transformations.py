@@ -116,11 +116,15 @@ class ColumnSelector(Transformer):
         if not self.complement:
             return columns
         else:
+            if type(columns) is int:
+                columns = [columns]
             all = list(range(data.shape[0]))
             return [col for col in all if col not in columns]
 
     # TODO: docs....
     def _check_columns(self, data):
+        if type(self.columns) is int:
+            return self.columns
         if self.handle_unknown == 'ignore':
             return [col for col in self.columns if col < data.shape[1]]
         elif len(self.columns) > 0 and max(self.columns) >= data.shape[1]:
@@ -153,11 +157,14 @@ class ColumnSelector(Transformer):
             self.columns_ = None
             return
 
-        if (
-            type(columns) is not list or
-            not all(map(lambda x: isinstance(x, int), columns))
+        if (type(columns) is not int and (
+                type(columns) is not list or
+                not all(map(lambda x: isinstance(x, int), columns)
+            ))
         ):
-            raise ValueError('Columns should be a list of integers')
+            raise ValueError(
+                'Columns should be a single integer or a list of integers'
+            )
 
         self.columns_ = columns
 
@@ -168,15 +175,21 @@ class PandasColumnSelector(ColumnSelector, PandasTransformer):
         if not self.complement:
             return columns
         elif not self.named_columns:
+            if type(columns) is int:
+                columns = [columns]
             return super(PandasColumnSelector, self)._columns_to_select(
                 columns,
                 data
             )
         else:
+            if type(columns) is str:
+                columns = [columns]
             return [col for col in data.columns if not col in columns]
 
     # TODO: docs....
     def _check_columns(self, data):
+        if type(self.columns) in (str, int):
+            return self.columns
         if self.handle_unknown == 'ignore' and self.named_columns:
             return [col for col in self.columns if col in data.columns]
         elif self.handle_unknown == 'ignore' and not self.named_columns:
@@ -241,8 +254,20 @@ class PandasColumnSelector(ColumnSelector, PandasTransformer):
         ):
             self.columns_ = columns
             self.named_columns = True
+        elif (
+            type(columns) is int
+        ):
+            self.columns_ = columns
+            self.named_columns = False
+        elif (
+            type(columns) is str
+        ):
+            self.columns_ = columns
+            self.named_columns = True
         else:
-            raise ValueError('Columns should be a list of strings or integers')
+            raise ValueError(
+                'Columns should be a singe instance or a list of strings or integers'
+            )
 
 
 

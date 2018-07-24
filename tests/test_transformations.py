@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 
 from sklearn_helpers.transformations import \
-    Transformer, \
     PandasTransformer, \
     ColumnSelector, \
     PandasColumnSelector, \
@@ -76,12 +75,12 @@ class ColumnSelectorTest(unittest.TestCase):
             [3,4]
         ])
 
-        cs = ColumnSelector(columns=[1])
+        cs = ColumnSelector(columns=[0,1])
 
         result = cs.transform(data)
 
         self.assertTrue(
-            (data[:,1] == result[:,0]).all()
+            (data == result).all()
         )
 
     def test_selects_all(self):
@@ -97,6 +96,21 @@ class ColumnSelectorTest(unittest.TestCase):
 
         self.assertTrue(
             (data == result).all()
+        )
+
+    def test_selects_vector(self):
+        """If only  a single index is passed it should return a vector"""
+        data = np.array([
+            [1,2],
+            [3,4]
+        ])
+
+        cs = ColumnSelector(columns=0)
+
+        result = cs.transform(data)
+
+        self.assertTrue(
+            (data[:,0] == result).all()
         )
 
     def test_handle_unkown_error(self):
@@ -221,6 +235,42 @@ class PandasColumnSelectorTest(unittest.TestCase):
 
         self.assertTrue(
             (df.iloc[:,2] == selected.iloc[:,1]).all()
+        )
+
+    def test_select_series_numeric(self):
+        """It should return a series if a single value is passed"""
+        df = pd.DataFrame(
+            np.array([
+                [1,2,4],
+                [3,4,5]
+            ]),
+            columns=['a', 'b', 'c']
+        )
+
+        pcs = PandasColumnSelector(columns=0)
+
+        selected = pcs.transform(df)
+
+        self.assertTrue(
+            (df.iloc[:,0] == selected).all()
+        )
+
+    def test_select_series_string(self):
+        """It should return a series if a single value is passed"""
+        df = pd.DataFrame(
+            np.array([
+                [1,2,4],
+                [3,4,5]
+            ]),
+            columns=['a', 'b', 'c']
+        )
+
+        pcs = PandasColumnSelector(columns='b')
+
+        selected = pcs.transform(df)
+
+        self.assertTrue(
+            (df.iloc[:,1] == selected).all()
         )
 
     def test_handle_unkown_error(self):
