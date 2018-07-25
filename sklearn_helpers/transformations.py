@@ -31,7 +31,7 @@ class Transformer(BaseEstimator, TransformerMixin):
             raise ValueError('Function should be callable')
 
         self._transformer = func
-        self.skip_validation = False
+        self.skip_validation = True
 
     def fit(self, data, y):
         """Empty shell only to adhere to the scikit-learn api
