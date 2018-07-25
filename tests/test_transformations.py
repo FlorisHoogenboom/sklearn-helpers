@@ -7,7 +7,8 @@ from sklearn_helpers.transformations import \
     ColumnSelector, \
     PandasColumnSelector, \
     PandasCatColumnSelector, \
-    PandasNonCatColumnSelector
+    PandasNonCatColumnSelector, \
+    PandasTypeSelector
 
 
 class TransformerTest(unittest.TestCase):
@@ -192,6 +193,8 @@ class ColumnSelectorTest(unittest.TestCase):
             result.shape[1],
             2
         )
+
+
 class PandasColumnSelectorTest(unittest.TestCase):
     def test_selects_right_columns_numeric(self):
         """It should select the right columns when specified as indices"""
@@ -353,6 +356,28 @@ class PandasColumnSelectorTest(unittest.TestCase):
             0
         )
 
+
+class PandasTypeSelectorTest(unittest.TestCase):
+    def test_select_right_columns(self):
+        """It should select the right columns"""
+        df = pd.DataFrame(
+            np.array([
+                [1,'b','a'],
+                [3,'c','b']
+            ]),
+            columns=['a', 'b', 'c']
+        )
+
+        df['a'] = df['a'].astype('int64')
+
+        ccs = PandasTypeSelector('number')
+        selected = ccs.transform(df)
+
+        self.assertTrue(selected.shape[1] == 1)
+
+        self.assertTrue(
+            all(selected == df.iloc[:,[0]])
+        )
 
 
 class PandasCatColumnsSelectorTest(unittest.TestCase):

@@ -270,6 +270,15 @@ class PandasColumnSelector(ColumnSelector, PandasTransformer):
             )
 
 
+class PandasTypeSelector(ColumnSelector, PandasTransformer):
+    def __init__(self, types):
+        super(PandasTypeSelector, self).__init__()
+        self.types = types
+
+    def transform_func(self, data):
+        if type(self.types) is str:
+            types = [self.types]
+        return data.select_dtypes(include=types)
 
 
 class PandasCatColumnSelector(PandasColumnSelector):
